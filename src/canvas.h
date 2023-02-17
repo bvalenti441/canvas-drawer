@@ -13,6 +13,11 @@
 
 namespace agl
 {
+    struct vert {
+        std::pair<int, int> coordinate;
+        Pixel color;
+    };
+
    enum PrimitiveType {UNDEFINED, LINES, TRIANGLES};
    class Canvas
    {
@@ -36,6 +41,10 @@ namespace agl
       void begin(PrimitiveType type);
       void end();
 
+      void draw_low(vert a, vert b);
+
+      void draw_high(vert a, vert b);
+
       // Specifiy a vertex at raster position (x,y)
       // x corresponds to the column; y to the row
       void vertex(int x, int y);
@@ -48,6 +57,9 @@ namespace agl
 
    private:
       Image _canvas;
+      PrimitiveType currType;
+      Pixel currColor;
+      std::vector<vert> vertices;
    };
 }
 

@@ -1,15 +1,11 @@
-/*-----------------------------------------------
- * Author:
- * Date:
- * Description:
- ----------------------------------------------*/
-
+// Copyright 2021, Aline Normoyle, alinen
 
 #ifndef AGL_IMAGE_H_
 #define AGL_IMAGE_H_
 
 #include <iostream>
 #include <string>
+#include <cmath>
 
 namespace agl {
 
@@ -64,7 +60,19 @@ class Image {
    *
    * Data will have size width * height * 4 (RGB)
    */
-  char* data() const;
+  unsigned char* data() const;
+  /**
+   * @brief Returns the number of unsigned chars per pixel
+   *
+   * The default is 3 for RGB, and for the purposes of this project it is never anything else
+   */
+  int channels_num() const;
+
+  /**
+   * @brief deallocate the memory of the image's pixel array
+   *
+   */
+  void cleanUp();
 
   /**
    * @brief Replace image RGB data
@@ -109,7 +117,6 @@ class Image {
  * Pixel colors are unsigned char, e.g. in range 0 to 255
  */
   void set(int i, const Pixel& c);
-
 
   // resize the image
   Image resize(int width, int height) const;
@@ -184,6 +191,9 @@ class Image {
   // Convert the image to grayscale
   Image grayscale() const;
 
+  // return a rotated version of the image based on sine
+  Image distort() const;
+
   // return a bitmap version of this image
   Image colorJitter(int size) const;
 
@@ -193,8 +203,15 @@ class Image {
   // Fill this image with a color
   void fill(const Pixel& c);
 
- private:
-   // todo
+  // Extract the red, green, or blue components of an image
+  Image extract(char comp);
+
+ protected:
+     int Width;
+     int Height;
+     unsigned char* Data; //1D array representation of a grid of pixels
+     int Channels_num;
+     bool allocationFlag; // 0 for allocated with new, 1 for allocated with stbi_load
 };
 }  // namespace agl
 #endif  // AGL_IMAGE_H_
