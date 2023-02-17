@@ -46,10 +46,11 @@ void Canvas::draw_low(vert a, vert b) {
 	int F = 2 * H - W;
 	for (int i = a.coordinate.first; i < b.coordinate.first; ++i) {
 		Pixel c;
-		c.r = (a.coordinate.first / i + a.coordinate.second / y) / 2 * a.color.r + (b.coordinate.first / i + b.coordinate.second / y) / 2 * b.color.r;
-		c.r = (a.coordinate.first / i + a.coordinate.second / y) / 2 * a.color.g + (b.coordinate.first / i + b.coordinate.second / y) / 2 * b.color.g;
-		c.r = (a.coordinate.first / i + a.coordinate.second / y) / 2 * a.color.b + (b.coordinate.first / i + b.coordinate.second / y) / 2 * b.color.b;
-		_canvas.set(y, i, c);
+		float t = (sqrt(pow(i - a.coordinate.first, 2) + pow(y - a.coordinate.second, 2)) / sqrt(pow(b.coordinate.first - a.coordinate.first, 2) + pow(b.coordinate.second - a.coordinate.second, 2)));
+		c.r = a.color.r + (b.color.r - a.color.r) * t;
+		c.g = a.color.g + (b.color.g - a.color.g) * t;
+		c.b = a.color.b + (b.color.b - a.color.b) * t;
+			_canvas.set(y, i, c);
 		if (F > 0) {
 			y += dy;
 			F += 2 * (H - W);
@@ -72,9 +73,10 @@ void Canvas::draw_high(vert a, vert b) {
 	int F = 2 * W - H;
 	for (int i = a.coordinate.second; i < b.coordinate.second; ++i) {
 		Pixel c;
-		c.r = (i / a.coordinate.second + x / a.coordinate.first) / 2 * a.color.r + (i / b.coordinate.second + x / b.coordinate.first) / 2 * b.color.r;
-		c.r = (i / a.coordinate.second + x / a.coordinate.first) / 2 * a.color.g + (i / b.coordinate.second + x / b.coordinate.first) / 2 * b.color.g;
-		c.r = (i / a.coordinate.second + x / a.coordinate.first) / 2 * a.color.b + (i / b.coordinate.second + x / b.coordinate.first) / 2 * b.color.b;
+		float t = (sqrt(pow(x - a.coordinate.first, 2) + pow(i - a.coordinate.second, 2)) / sqrt(pow(b.coordinate.first - a.coordinate.first, 2) + pow(b.coordinate.second - a.coordinate.second, 2)));
+		c.r = a.color.r + (b.color.r - a.color.r) * t;
+		c.g = a.color.g + (b.color.g - a.color.g) * t;
+		c.b = a.color.b + (b.color.b - a.color.b) * t;
 		_canvas.set(i, x, c);
 		if (F > 0) {
 			x += dx;
@@ -134,11 +136,11 @@ void Canvas::vertex(int x, int y)
 			vert a;
 			vert b;
 			vert c;
-			if (a1 < a2 && a1 < a3) {
+			if (a1 > a2 && a1 > a3) {
 				a.coordinate.first = x;
 				a.coordinate.second = y;
 				a.color = currColor;
-				if (a2 < a3) {
+				if (a2 > a3) {
 					b.coordinate.first = vertices[vertices.size() - 2].coordinate.first;
 					b.coordinate.second = vertices[vertices.size() - 2].coordinate.second;
 					b.color = vertices[vertices.size() - 2].color;
@@ -154,11 +156,11 @@ void Canvas::vertex(int x, int y)
 					b.coordinate.second = vertices[vertices.size() - 3].coordinate.second;
 					b.color = vertices[vertices.size() - 3].color;
 				}
-			} else if (a2 < a1 && a2 < a3) {
+			} else if (a2 > a1 && a2 > a3) {
 				a.coordinate.first = vertices[vertices.size() - 3].coordinate.first;
 				a.coordinate.second = vertices[vertices.size() - 3].coordinate.second;
 				a.color = vertices[vertices.size() - 3].color;
-				if (a1 < a3) {
+				if (a1 > a3) {
 					c.coordinate.first = x;
 					c.coordinate.second = y;
 					c.color = currColor;
@@ -176,9 +178,9 @@ void Canvas::vertex(int x, int y)
 				}
 			} else {
 				a.coordinate.first = vertices[vertices.size() - 2].coordinate.first;
-				a.coordinate.second = vertices[vertices.size() - 2].coordinate.first;
+				a.coordinate.second = vertices[vertices.size() - 2].coordinate.second;
 				a.color = vertices[vertices.size() - 2].color;
-				if (a1 < a2) {
+				if (a1 > a2) {
 					b.coordinate.first = x;
 					b.coordinate.second = y;
 					b.color = currColor;
@@ -200,17 +202,24 @@ void Canvas::vertex(int x, int y)
 			int xmin = min(min(a.coordinate.first, b.coordinate.first), c.coordinate.first);
 			int ymax = max(max(a.coordinate.second, b.coordinate.second), c.coordinate.second);
 			int ymin = min(min(a.coordinate.second, b.coordinate.second), c.coordinate.second);
+			float falpha = (b.coordinate.second - c.coordinate.second) * a.coordinate.first + (c.coordinate.first - b.coordinate.first) * a.coordinate.second + b.coordinate.first * c.coordinate.second - c.coordinate.first * b.coordinate.second;
+			float fbeta = (c.coordinate.second - a.coordinate.second) * b.coordinate.first + (a.coordinate.first - c.coordinate.first) * b.coordinate.second + c.coordinate.first * a.coordinate.second - a.coordinate.first * c.coordinate.second;
+			float fgamma = (a.coordinate.second - b.coordinate.second) * c.coordinate.first + (b.coordinate.first - a.coordinate.first) * c.coordinate.second + a.coordinate.first * b.coordinate.second - b.coordinate.first * a.coordinate.second;
 			for (int i = ymin; i <= ymax; i++) {
 				for (int j = xmin; j <= xmax; j++) {
-					float alpha = (c.coordinate.first - b.coordinate.first) * (i - b.coordinate.second) + (c.coordinate.second - b.coordinate.second) * (j - b.coordinate.first);
-					float beta = (a.coordinate.first - c.coordinate.first) * (i - c.coordinate.second) + (a.coordinate.second - c.coordinate.second) * (j - c.coordinate.first);
-					float gamma = (b.coordinate.first - a.coordinate.first) * (i - a.coordinate.second) + (b.coordinate.second - a.coordinate.second) * (j - a.coordinate.first);
-					if (alpha > 0 && beta > 0 && gamma > 0) {
-						Pixel interpolated;
-						interpolated.r = (alpha * a.color.r + beta * b.color.r + gamma * c.color.r) / 3;
-						interpolated.g = (alpha * a.color.g + beta * b.color.g + gamma * c.color.g) / 3;
-						interpolated.b = (alpha * a.color.b + beta * b.color.b + gamma * c.color.b) / 3;
-						_canvas.set(i, j, interpolated);
+					float alpha = ((b.coordinate.second - c.coordinate.second) * j + (c.coordinate.first - b.coordinate.first) * i + b.coordinate.first * c.coordinate.second - c.coordinate.first * b.coordinate.second) / falpha;				
+					float beta = ((c.coordinate.second - a.coordinate.second) * j + (a.coordinate.first - c.coordinate.first) * i + c.coordinate.first * a.coordinate.second - a.coordinate.first * c.coordinate.second) / fbeta;
+					float gamma = ((a.coordinate.second - b.coordinate.second) * j +(b.coordinate.first - a.coordinate.first) * i + a.coordinate.first * b.coordinate.second - b.coordinate.first * a.coordinate.second) / fgamma;
+					if ((alpha >= 0) && (beta >= 0) && (gamma >= 0)) {
+						if(((alpha > 0) || (falpha * ((b.coordinate.second - c.coordinate.second) * -1 + (c.coordinate.first - b.coordinate.first) * -1 + b.coordinate.first * c.coordinate.second - c.coordinate.first * b.coordinate.second) > 0))
+							&& ((beta > 0) || (fbeta * ((c.coordinate.second - a.coordinate.second) * -1 + (a.coordinate.first - c.coordinate.first) * -1 + c.coordinate.first * a.coordinate.second - a.coordinate.first * c.coordinate.second) > 0))
+								&& ((gamma > 0) || (fgamma * ((a.coordinate.second - b.coordinate.second) * -1 + (b.coordinate.first - a.coordinate.first) * -1 + a.coordinate.first * b.coordinate.second - b.coordinate.first * a.coordinate.second) > 0))) {
+							Pixel interpolated;
+							interpolated.r = alpha * a.color.r + beta * b.color.r + gamma * c.color.r;
+							interpolated.g = alpha * a.color.g + beta * b.color.g + gamma * c.color.g;
+							interpolated.b = alpha * a.color.b + beta * b.color.b + gamma * c.color.b;
+							_canvas.set(i, j, interpolated);
+						}
 					}
 				}
 			}
