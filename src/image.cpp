@@ -50,7 +50,7 @@ namespace agl {
             stbi_image_free(Data);
         }
         else {
-            delete[] Data;
+            
         }
         Data = NULL;
     }
@@ -121,9 +121,11 @@ void Image::set(int width, int height, unsigned char* data) {
 }
 
 void Image::set(int row, int col, const Pixel& color) {
-    if (row * width() + col >= width() * height() + width()) {
-        std::cout << "row: " << row << ", col: " << col << "Invalid dimensions" << std::endl;
-        return;
+    if (col >= height()) {
+        col = height() - 1;
+    }
+    if (row >= width()) {
+        row = width() - 1;
     }
     Data[(row * width() + col) * channels_num()] = color.r;
     Data[(row * width() + col) * channels_num() + 1] = color.g;

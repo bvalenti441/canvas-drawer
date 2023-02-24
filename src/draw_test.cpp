@@ -19,11 +19,11 @@ int main(int argc, char** argv)
    Canvas drawer(100, 100);
 
    drawer.color(255, 255, 255);
-   test_line(drawer, 0, 50, 100, 50, "horizontal-line.png");
+   test_line(drawer, 0, 50, 99, 50, "horizontal-line.png");
    test_line(drawer, 50, 0, 50, 100, "vertical-line.png");
    test_line(drawer, 0, 0, 100, 100, "diagonal-line-1.png"); // slope = 1
    test_line(drawer, 25, 10, 75, 25,  "h-lessthan-w-line-1.png"); // slope H < W
-   test_line(drawer, 25, 25, 75, 75,  "w-lessthan-h-line-1.png"); // slope W < H
+   test_line(drawer, 25, 25, 75, 75, "w-lessthan-h-line-1.png"); // slope W < H
    test_line(drawer, 0, 100, 100, 0, "diagonal-line-2.png"); // slope H < W
    test_line(drawer, 25, 90, 75, 75,  "h-lessthan-w-line-2.png"); // slope H < W
    test_line(drawer, 25, 90, 75, 25,  "w-lessthan-h-line-2.png"); // slope W < H
@@ -50,7 +50,7 @@ int main(int argc, char** argv)
    drawer.end();
    drawer.save("triangle.png");
 
-   // test triangle with interpolation
+   // test quad
    drawer.background(0, 0, 0);
    drawer.begin(TRIANGLES);
    drawer.color(255, 0, 255);
@@ -64,6 +64,17 @@ int main(int argc, char** argv)
    drawer.vertex(10, 10);
    drawer.end();
    drawer.save("quad.png");
+   drawer.end();
+
+   drawer.begin(LINES, true);
+   drawer.background(0, 0, 0);
+   drawer.color(255, 0, 255);
+   drawer.draw_circle(10, 50, 50);
+   drawer.save("circle.png");
+
+   drawer.background(0, 0, 0);
+   drawer.draw_rectangle(50, 50, 50, 50);
+   drawer.save("rectangle.png");
 
    return 0;
 }

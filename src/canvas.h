@@ -18,7 +18,7 @@ namespace agl
         Pixel color;
     };
 
-   enum PrimitiveType {UNDEFINED, LINES, TRIANGLES};
+   enum PrimitiveType {UNDEFINED, LINES, TRIANGLES, POINTS};
    class Canvas
    {
    public:
@@ -38,12 +38,20 @@ namespace agl
       //    vertex(0, 0);
       //    vertex(0,100);
       // end();
-      void begin(PrimitiveType type);
+      void begin(PrimitiveType type, bool fill = false);
       void end();
 
       void draw_low(vert a, vert b);
 
       void draw_high(vert a, vert b);
+
+      void draw_line(vert a, vert b);
+
+      void draw_triangle(vert a, vert b, vert c);
+
+      void draw_rectangle(int w, int h, int cx, int cy);
+
+      void draw_circle(int r, int cx, int cy);
 
       // Specifiy a vertex at raster position (x,y)
       // x corresponds to the column; y to the row
@@ -60,6 +68,10 @@ namespace agl
       PrimitiveType currType;
       Pixel currColor;
       std::vector<vert> vertices;
+      bool filled;
+
+      void circleHelper(int xc, int yc, int x, int y);
+
    };
 }
 
