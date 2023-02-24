@@ -121,11 +121,11 @@ void Image::set(int width, int height, unsigned char* data) {
 }
 
 void Image::set(int row, int col, const Pixel& color) {
-    if (col >= height()) {
-        col = height() - 1;
+    if (col >= width()) {
+        col = width() - 1;
     }
-    if (row >= width()) {
-        row = width() - 1;
+    if (row >= height()) {
+        row = height() - 1;
     }
     Data[(row * width() + col) * channels_num()] = color.r;
     Data[(row * width() + col) * channels_num() + 1] = color.g;

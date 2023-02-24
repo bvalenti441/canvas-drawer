@@ -50,6 +50,17 @@ int main(int argc, char** argv)
    drawer.end();
    drawer.save("triangle.png");
 
+   drawer.background(0, 0, 0);
+   drawer.begin(TRIANGLES, true);
+   drawer.color(255, 0, 255);
+   drawer.vertex(10, 0);
+   drawer.color(0, 255, 255);
+   drawer.vertex(90, 50);
+   drawer.color(255, 255, 0);
+   drawer.vertex(10, 90);
+   drawer.end();
+   drawer.save("fulltriangle.png");
+
    // test quad
    drawer.background(0, 0, 0);
    drawer.begin(TRIANGLES);
@@ -64,6 +75,11 @@ int main(int argc, char** argv)
    drawer.vertex(10, 10);
    drawer.end();
    drawer.save("quad.png");
+   
+   drawer.background(0, 0, 0);
+   drawer.color(255, 0, 255);
+   drawer.draw_circle(10, 50, 50);
+   drawer.save("holocircle.png");
    drawer.end();
 
    drawer.begin(LINES, true);
@@ -75,6 +91,18 @@ int main(int argc, char** argv)
    drawer.background(0, 0, 0);
    drawer.draw_rectangle(50, 50, 50, 50);
    drawer.save("rectangle.png");
+   drawer.end();
+
+   drawer.begin(POINTS);
+   drawer.background(0, 0, 0);
+   drawer.color(255, 255, 255);
+   for (int i = 0; i < 100; i += 3) {
+	   for (int j = 0; j < 100; j += 3) {
+		   drawer.vertex(i, j);
+	   }
+   }
+   drawer.end();
+   drawer.save("points.png");
 
    return 0;
 }

@@ -121,6 +121,12 @@ void Canvas::draw_line(vert a, vert b) {
 void Canvas::draw_triangle(vert a, vert b, vert c)
 {
 	// sort vertices counterclockwise
+	if (!filled) {
+		draw_line(a, b);
+		draw_line(a, c);
+		draw_line(b, c);
+		return;
+	}
 	std::pair<int, int> centroid;
 	centroid.first = (a.coordinate.first + b.coordinate.first + c.coordinate.first) / 3;
 	centroid.second = (a.coordinate.second + b.coordinate.second + c.coordinate.second) / 3;
@@ -169,40 +175,20 @@ void Canvas::draw_triangle(vert a, vert b, vert c)
 	float falpha = (b.coordinate.second - c.coordinate.second) * a.coordinate.first + (c.coordinate.first - b.coordinate.first) * a.coordinate.second + b.coordinate.first * c.coordinate.second - c.coordinate.first * b.coordinate.second;
 	float fbeta = (c.coordinate.second - a.coordinate.second) * b.coordinate.first + (a.coordinate.first - c.coordinate.first) * b.coordinate.second + c.coordinate.first * a.coordinate.second - a.coordinate.first * c.coordinate.second;
 	float fgamma = (a.coordinate.second - b.coordinate.second) * c.coordinate.first + (b.coordinate.first - a.coordinate.first) * c.coordinate.second + a.coordinate.first * b.coordinate.second - b.coordinate.first * a.coordinate.second;
-	if (!filled) {
-		for (int i = ymin; i <= ymax; i++) {
-			for (int j = xmin; j <= xmax; j++) {
-				float alpha = ((b.coordinate.second - c.coordinate.second) * j + (c.coordinate.first - b.coordinate.first) * i + b.coordinate.first * c.coordinate.second - c.coordinate.first * b.coordinate.second) / falpha;
-				float beta = ((c.coordinate.second - a.coordinate.second) * j + (a.coordinate.first - c.coordinate.first) * i + c.coordinate.first * a.coordinate.second - a.coordinate.first * c.coordinate.second) / fbeta;
-				float gamma = ((a.coordinate.second - b.coordinate.second) * j + (b.coordinate.first - a.coordinate.first) * i + a.coordinate.first * b.coordinate.second - b.coordinate.first * a.coordinate.second) / fgamma;
-				if ((alpha >= 0) && (beta >= 0) && (gamma >= 0)) {
-					if (alpha == 0 || beta == 0 || gamma == 0) {
-						Pixel interpolated;
-						interpolated.r = alpha * a.color.r + beta * b.color.r + gamma * c.color.r;
-						interpolated.g = alpha * a.color.g + beta * b.color.g + gamma * c.color.g;
-						interpolated.b = alpha * a.color.b + beta * b.color.b + gamma * c.color.b;
-						_canvas.set(i, j, interpolated);
-					}
-				}
-			}
-		}
-	}
-	else {
-		for (int i = ymin; i <= ymax; i++) {
-			for (int j = xmin; j <= xmax; j++) {
-				float alpha = ((b.coordinate.second - c.coordinate.second) * j + (c.coordinate.first - b.coordinate.first) * i + b.coordinate.first * c.coordinate.second - c.coordinate.first * b.coordinate.second) / falpha;
-				float beta = ((c.coordinate.second - a.coordinate.second) * j + (a.coordinate.first - c.coordinate.first) * i + c.coordinate.first * a.coordinate.second - a.coordinate.first * c.coordinate.second) / fbeta;
-				float gamma = ((a.coordinate.second - b.coordinate.second) * j + (b.coordinate.first - a.coordinate.first) * i + a.coordinate.first * b.coordinate.second - b.coordinate.first * a.coordinate.second) / fgamma;
-				if ((alpha >= 0) && (beta >= 0) && (gamma >= 0)) {
-					if (((alpha > 0) || (falpha * ((b.coordinate.second - c.coordinate.second) * -2.3 + (c.coordinate.first - b.coordinate.first) * -1.1 + b.coordinate.first * c.coordinate.second - c.coordinate.first * b.coordinate.second) > 0))
-						&& ((beta > 0) || (fbeta * ((c.coordinate.second - a.coordinate.second) * -2.3 + (a.coordinate.first - c.coordinate.first) * -1.1 + c.coordinate.first * a.coordinate.second - a.coordinate.first * c.coordinate.second) > 0))
-						&& ((gamma > 0) || (fgamma * ((a.coordinate.second - b.coordinate.second) * -2.3 + (b.coordinate.first - a.coordinate.first) * -1.1 + a.coordinate.first * b.coordinate.second - b.coordinate.first * a.coordinate.second) > 0))) {
-						Pixel interpolated;
-						interpolated.r = alpha * a.color.r + beta * b.color.r + gamma * c.color.r;
-						interpolated.g = alpha * a.color.g + beta * b.color.g + gamma * c.color.g;
-						interpolated.b = alpha * a.color.b + beta * b.color.b + gamma * c.color.b;
-						_canvas.set(i, j, interpolated);
-					}
+	for (int i = ymin; i <= ymax; i++) {
+		for (int j = xmin; j <= xmax; j++) {
+			float alpha = ((b.coordinate.second - c.coordinate.second) * j + (c.coordinate.first - b.coordinate.first) * i + b.coordinate.first * c.coordinate.second - c.coordinate.first * b.coordinate.second) / falpha;
+			float beta = ((c.coordinate.second - a.coordinate.second) * j + (a.coordinate.first - c.coordinate.first) * i + c.coordinate.first * a.coordinate.second - a.coordinate.first * c.coordinate.second) / fbeta;
+			float gamma = ((a.coordinate.second - b.coordinate.second) * j + (b.coordinate.first - a.coordinate.first) * i + a.coordinate.first * b.coordinate.second - b.coordinate.first * a.coordinate.second) / fgamma;
+			if ((alpha >= 0) && (beta >= 0) && (gamma >= 0)) {
+				if (((alpha > 0) || (falpha * ((b.coordinate.second - c.coordinate.second) * -2.3 + (c.coordinate.first - b.coordinate.first) * -1.1 + b.coordinate.first * c.coordinate.second - c.coordinate.first * b.coordinate.second) > 0))
+					&& ((beta > 0) || (fbeta * ((c.coordinate.second - a.coordinate.second) * -2.3 + (a.coordinate.first - c.coordinate.first) * -1.1 + c.coordinate.first * a.coordinate.second - a.coordinate.first * c.coordinate.second) > 0))
+					&& ((gamma > 0) || (fgamma * ((a.coordinate.second - b.coordinate.second) * -2.3 + (b.coordinate.first - a.coordinate.first) * -1.1 + a.coordinate.first * b.coordinate.second - b.coordinate.first * a.coordinate.second) > 0))) {
+					Pixel interpolated;
+					interpolated.r = alpha * a.color.r + beta * b.color.r + gamma * c.color.r;
+					interpolated.g = alpha * a.color.g + beta * b.color.g + gamma * c.color.g;
+					interpolated.b = alpha * a.color.b + beta * b.color.b + gamma * c.color.b;
+					_canvas.set(i, j, interpolated);
 				}
 			}
 		}
@@ -214,53 +200,65 @@ void Canvas::draw_rectangle(int w, int h, int cx, int cy)
 	vert a;
 	std::pair<int, int> aCords;
 	aCords.first = cx - (w / 2);
-	aCords.second = cy + (h / 2);
+	aCords.second = cy - (h / 2);
 	a.coordinate = aCords;
 	a.color = currColor;
 
 	vert b; 
 	std::pair<int, int> bCords;
 	bCords.first = cx + (w / 2);
-	bCords.second = cy + (h / 2);
+	bCords.second = cy - (h / 2);
 	b.coordinate = bCords;
 	b.color = currColor;	
 	
 	vert c;
 	std::pair<int, int> cCords;
 	cCords.first = cx - (w / 2);
-	cCords.second = cy - (h / 2);
+	cCords.second = cy + (h / 2);
 	c.coordinate = cCords;
 	c.color = currColor;	
 	
 	vert d;
 	std::pair<int, int> dCords;
 	dCords.first = cx + (w / 2);
-	dCords.second = cy - (h / 2);
+	dCords.second = cy + (h / 2);
 	d.coordinate = dCords;
 	d.color = currColor;
-
-	draw_line(a, b);
-	draw_line(a, c);
-	draw_line(b, d);
-	draw_line(c, d);
+	if (filled) {
+		draw_triangle(a, b, c);
+		draw_triangle(b, c, d);
+	}
+	else {
+		draw_line(a, b);
+		draw_line(a, c);
+		draw_line(b, d);
+		draw_line(c, d);
+	}
 }
 
-void Canvas::circleHelper(int xc, int yc, int x, int y)
+void Canvas::circleHelper(int cx, int cy, int x, int y)
 {
 	// draw 8 pixels per iteration, one in each octant of the circle
-	_canvas.set(xc + x, yc + y, currColor);
-	_canvas.set(xc - x, yc + y, currColor);
-	_canvas.set(xc + x, yc - y, currColor);
-	_canvas.set(xc - x, yc - y, currColor);
-	_canvas.set(xc + y, yc + x, currColor);
-	_canvas.set(xc - y, yc + x, currColor);
-	_canvas.set(xc + y, yc - x, currColor);
-	_canvas.set(xc - y, yc - x, currColor);
+	_canvas.set(cx + x, cy + y, currColor);
+	_canvas.set(cx - x, cy + y, currColor);
+	_canvas.set(cx + x, cy - y, currColor);
+	_canvas.set(cx - x, cy - y, currColor);
+	_canvas.set(cx + y, cy + x, currColor);
+	_canvas.set(cx - y, cy + x, currColor);
+	_canvas.set(cx + y, cy - x, currColor);
+	_canvas.set(cx - y, cy - x, currColor);
 }
 
 // using Bresenham's circle drawing algorithm
 void Canvas::draw_circle(int r, int cx, int cy)
 {
+	if (filled == true) {
+		for (int y = -r; y <= r; y++)
+			for (int x = -r; x <= r; x++)
+				if (x * x + y * y <= r * r)
+					_canvas.set(cy + y, cx + x, currColor);
+		return;
+	}
 	int x = 0;
 	int y = r;
 	int d = 3 - 2 * r;
@@ -294,7 +292,7 @@ void Canvas::vertex(int x, int y)
 	v.color = currColor;
 	vertices.push_back(v);
 	if (currType == POINTS) {
-		_canvas.set(x, y, currColor);
+		_canvas.set(y, x, currColor);
 	}
 	else if ((this->currType == LINES) && (vertices.size() == 2)) {
 		draw_line(vertices[vertices.size() - 2], v);
@@ -315,7 +313,7 @@ void Canvas::color(unsigned char r, unsigned char g, unsigned char b)
 
 void Canvas::background(unsigned char r, unsigned char g, unsigned char b)
 {
-	for (int i = 0; i < _canvas.width() * _canvas.height() * _canvas.channels_num(); ++i) {
+	for (int i = 0; i < _canvas.width() * _canvas.height()*_canvas.channels_num(); i += 3) {
 		_canvas.data()[i] = r;
 		_canvas.data()[i + 1] = g;
 		_canvas.data()[i + 2] = b;
