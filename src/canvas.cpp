@@ -52,9 +52,6 @@ void Canvas::draw_low(vert a, vert b) {
 		c.r = a.color.r + (b.color.r - a.color.r) * t;
 		c.g = a.color.g + (b.color.g - a.color.g) * t;
 		c.b = a.color.b + (b.color.b - a.color.b) * t;
-		if (i >= _canvas.width() || y >= _canvas.height()) {
-			_canvas.set(y, i, c);
-		}
 		_canvas.set(y, i, c);
 		if (F > 0) {
 			y += dy;
@@ -83,9 +80,6 @@ void Canvas::draw_high(vert a, vert b)
 		c.r = a.color.r + (b.color.r - a.color.r) * t;
 		c.g = a.color.g + (b.color.g - a.color.g) * t;
 		c.b = a.color.b + (b.color.b - a.color.b) * t;
-		if (x >= _canvas.width() || i >= _canvas.height()) {
-			_canvas.set(i, x, c);
-		}
 		_canvas.set(i, x, c);
 		if (F > 0) {
 			x += dx;
@@ -313,10 +307,12 @@ void Canvas::color(unsigned char r, unsigned char g, unsigned char b)
 
 void Canvas::background(unsigned char r, unsigned char g, unsigned char b)
 {
-	for (int i = 0; i < _canvas.width() * _canvas.height()*_canvas.channels_num(); i += 3) {
-		_canvas.data()[i] = r;
-		_canvas.data()[i + 1] = g;
-		_canvas.data()[i + 2] = b;
+	Pixel p;
+	for (int i = 0; i < _canvas.width() * _canvas.height(); ++i) {
+		p.r = r;
+		p.g = g;
+		p.b = b;
+		_canvas.set(i,p);
 	}
 }
 

@@ -35,7 +35,7 @@ namespace agl {
         Data = new unsigned char[Width * Height * Channels_num];
         memcpy((void*)Data, (const void*)orig.Data, sizeof(unsigned char) * Width * Height * Channels_num);
         Channels_num = orig.Channels_num;
-        allocationFlag = orig.allocationFlag;
+        allocationFlag = 0;
         return *this;
     }
 
@@ -50,8 +50,9 @@ namespace agl {
             stbi_image_free(Data);
         }
         else {
-            
+            delete[] Data;
         }
+        allocationFlag = 0;
         Data = NULL;
     }
 
@@ -211,7 +212,6 @@ Image Image::subimage(int startx, int starty, int w, int h) const {
 
 void Image::replace(const Image& image, int startx, int starty) {
     Image result = Image(width(), height());
-    result.Data = Data;
     for (int i = 0; i < std::min(height(), image.height()); ++i) {
          for (int j = 0; j < std::min(width(), image.width()); ++j) {
             result.Data[((startx + i) * width() + j + starty) * channels_num()] = image.Data[(i * image.width() + j) * image.channels_num()];
